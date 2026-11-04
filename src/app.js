@@ -90,6 +90,30 @@
     }
   ];
 
+  var STREET = {
+    arena1: "Hoàng Văn Thái", hoamy: "Tô Hiệu", ankhe: "Hồ Tương", golden: "Nguyễn Văn Linh",
+    trongnghia: "Bế Văn Đàn", betaera: "Nguyễn Tri Phương", tienson: "Phan Đăng Lưu", sontra: "Võ Nguyên Giáp"
+  };
+
+  var SERVICES = [
+    { id: "vot", name: "Thuê vợt / paddle", price: 20000, unit: "cây/giờ", on: true },
+    { id: "cau", name: "Ống cầu Hải Yến", price: 120000, unit: "ống", on: true },
+    { id: "nuoc", name: "Nước suối, nước thể thao", price: 10000, unit: "chai", on: true },
+    { id: "bib", name: "Áo bib đổi màu", price: 15000, unit: "áo", on: false },
+    { id: "trongtai", name: "Trọng tài theo trận", price: 150000, unit: "trận", on: false },
+    { id: "quay", name: "Quay video trận đấu", price: 100000, unit: "trận", on: true }
+  ];
+
+  var CUSTOMERS = ["Quách Long", "Huỳnh Thịnh", "Châu Ngọc", "Trần Công Duy", "Nam Hải", "Trương Thanh Long",
+    "Trần Văn Chiến", "Phùng Quốc Bảo", "Đỗ Thanh Tài", "Bùi Văn Lanh", "Anh Trí", "Hoàng Phi Việt",
+    "Thế Mạnh", "Hoàn Việt", "Đức Vinh", "Hữu Trung", "Minh Duy", "Phát Nguyễn"];
+
+  var SEED_NOTIFS = [
+    { ic: "i-check", title: "Sân Arena.01 đã xác nhận lịch", body: "Sân 1 · 19:00 – 21:00 hôm nay. Nhớ đến sớm 10 phút.", time: "5 phút trước", read: false },
+    { ic: "i-star", title: "Kèo cầu lông của Anh Tuấn còn 2 chỗ", body: "19:00 hôm nay tại Arena.01 · 35.000đ/người.", time: "1 giờ trước", read: false },
+    { ic: "i-ticket", title: "Ưu đãi SMATE10 sắp hết hạn", body: "Giảm 10% cho lượt đặt sân tiếp theo, dùng trước Chủ nhật.", time: "Hôm qua", read: true }
+  ];
+
   var REVIEWS = {
     arena1: [["Ngọc Ánh", 5, "Sân sạch, đèn sáng đều, không bị chói khi đánh cầu cao."],
              ["Trần Hải", 4, "Giờ cao điểm hơi khó đặt, nên giữ chỗ trước 2 ngày."]],
@@ -141,7 +165,11 @@
 
   var state = {
     role: "player",
-    user: { name: "Lê Khắc Huy", phone: "0905 123 456", since: "03/2026" },
+    user: {
+      name: "Lê Khắc Huy", phone: "0905 123 456", since: "03/2026", email: "huy@smate.vn",
+      bio: "Chơi cầu lông 3 năm, hay đánh khung 19 giờ quanh Thanh Khê.",
+      sports: [{ id: "cau-long", level: "Trung bình" }, { id: "pickleball", level: "Mới chơi" }]
+    },
     sport: null,
     area: "all",
     query: "",
@@ -159,6 +187,10 @@
     points: 1250,
     played: 18,
     mapPick: "arena1",
+    st: { venue: "arena1", dateIdx: 0, court: 0, hours: [] },
+    mg: { venue: "arena1", tab: "lich", off: {}, svc: {} },
+    notifs: [],
+    push: "off",
     listKind: null,
     screen: "login",
     stack: []
@@ -189,6 +221,28 @@
     return (h >>> 0);
   }
   function hhmm(h) { return (h < 10 ? "0" + h : h) + ":00"; }
+  function logoSrc(v) { return "assets/logo-" + v.id + ".jpg"; }
+  function photoSrc(v) { return "assets/v-" + v.id + ".jpg"; }
+  function street(v) { return STREET[v.id] || v.addr.split(",")[0]; }
+  function opens(v) { return hhmm(v.open) + " – " + hhmm(v.close); }
+  function fromTo(v) { return "Từ " + kk(v.lo) + "-" + kk(v.hi) + "/ giờ"; }
+
+  function pushNotif(ic, title, body) {
+    state.notifs.unshift({ ic: ic, title: title, body: body, time: "Vừa xong", read: false });
+    paintBell();
+    try {
+      if (state.push === "on" && typeof Notification !== "undefined" && Notification.permission === "granted") {
+        new Notification(title, { body: body, icon: "assets/logo.png", tag: "smate" });
+      }
+    } catch (e) { /* trinh duyet tu choi - bo qua, thong bao van nam trong app */ }
+  }
+
+  function paintBell() {
+    var n = state.notifs.filter(function (x) { return !x.read; }).length;
+    var el = $("#bellCount");
+    el.hidden = n === 0;
+    el.textContent = n > 9 ? "9+" : n;
+  }
 
   var WD = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
   function dayList(n) {
@@ -249,7 +303,7 @@
   }
 
   function photo(v, cls, cap) {
-    return '<div class="photo sp-' + v.sport + ' ' + (cls || "") + '">' + glyph(v.sport, 64) +
+    return '<div class="photo sp-' + v.sport + " " + (cls || "") + '" style="background-image:url(' + photoSrc(v) + ')">' +
       (cap ? '<div class="cap"><b>' + esc(v.name) + "</b><span>" + esc(v.addr.split(",")[0]) + "</span></div>" : "") + "</div>";
   }
 
@@ -294,16 +348,28 @@
     newmatch: { chrome: "back", title: "Tạo kèo mới", cta: "Đăng kèo" },
     map: { chrome: "app", tab: "map", title: "Bản đồ" },
     profile: { chrome: "app", tab: "profile", title: "Cá nhân" },
-    list: { chrome: "back", title: "Danh sách" }
+    list: { chrome: "back", title: "Danh sách" },
+    status: { chrome: "back", title: "Trạng thái sân", cta: "Giữ chỗ" },
+    notif: { chrome: "back", title: "Thông báo" },
+    editprofile: { chrome: "back", title: "Sửa hồ sơ", cta: "Lưu thay đổi" },
+    manage: { chrome: "app", tab: "manage", title: "Quản lý sân" }
   };
 
-  var TABS = [
-    { id: "home", name: "Trang chủ", ic: "i-home" },
-    { id: "search", name: "Tìm sân", ic: "i-search" },
-    { id: "matches", name: "Ghép kèo", ic: "i-star" },
-    { id: "map", name: "Bản đồ", ic: "i-pin" },
-    { id: "profile", name: "Cá nhân", ic: "i-user" }
-  ];
+  var TAB_HOME = { id: "home", name: "Trang chủ", ic: "i-home" };
+  var TAB_SEARCH = { id: "search", name: "Tìm sân", ic: "i-search" };
+  var TAB_MATCH = { id: "matches", name: "Ghép kèo", ic: "i-star" };
+  var TAB_MANAGE = { id: "manage", name: "Quản lý", ic: "i-grid" };
+  var TAB_MAP = { id: "map", name: "Bản đồ", ic: "i-pin" };
+  var TAB_USER = { id: "profile", name: "Cá nhân", ic: "i-user" };
+
+  function tabsFor(role) {
+    return [TAB_HOME, TAB_SEARCH, role === "owner" ? TAB_MANAGE : TAB_MATCH, TAB_MAP, TAB_USER];
+  }
+  function paintTabs() {
+    $("#tabbar").innerHTML = tabsFor(state.role).map(function (t) {
+      return '<button data-tab="' + t.id + '"><svg class="ic"><use href="#' + t.ic + '"/></svg>' + t.name + "</button>";
+    }).join("");
+  }
 
   function go(name, push) {
     var cur = state.screen;
@@ -350,10 +416,12 @@
     var painters = {
       home: paintHome, search: paintSearch, venue: paintVenue, booking: paintBooking,
       payment: paintPayment, matches: paintMatches, match: paintMatch, newmatch: paintNewMatch,
-      map: paintMap, profile: paintProfile, list: paintList
+      map: paintMap, profile: paintProfile, list: paintList,
+      status: paintStatus, notif: paintNotif, editprofile: paintEditProfile, manage: paintManage
     };
     if (painters[n]) painters[n]();
     if (cfg.cta) paintCta(n);
+    paintBell();
   }
 
   function paintCta(n) {
@@ -371,6 +439,11 @@
       else if (m.joined >= m.cap) { b.textContent = "Kèo đã đủ người"; b.disabled = true; }
       else b.textContent = "Tham gia kèo · " + kk(m.cost);
     } else if (n === "newmatch") b.textContent = "Đăng kèo";
+    else if (n === "editprofile") b.textContent = "Lưu thay đổi";
+    else if (n === "status") {
+      b.textContent = state.st.hours.length ? "Giữ chỗ " + state.st.hours.length + " giờ · " + vnd(stTotal()) : "Chọn ô trống để giữ chỗ";
+      b.disabled = !state.st.hours.length;
+    }
   }
 
   /* ---------------- home ---------------- */
@@ -387,10 +460,10 @@
     var list = filtered(), body;
     body = list.slice(0, state.seeAll ? list.length : 5).map(function (v) {
       return '<button class="vrow" data-venue="' + v.id + '">' +
-        '<span class="th photo sp-' + v.sport + '">' + glyph(v.sport, 30) + "</span>" +
+        '<img class="th" src="' + logoSrc(v) + '" alt="" loading="lazy">' +
         '<span class="mid"><span class="nm">' + esc(v.name) + "</span>" +
-        '<span class="mt">' + v.courts + " sân · " + esc(v.addr.split(",")[0]) + "</span>" +
-        '<span class="mt">' + (v.lo === v.hi ? vnd(v.lo) : vnd(v.lo) + " – " + vnd(v.hi)) + "/ giờ</span></span>" +
+        '<span class="mt">' + opens(v) + " · " + esc(street(v)) + "</span>" +
+        '<span class="mt">' + fromTo(v) + "</span></span>" +
         '<span class="bk">ĐẶT</span></button>';
     }).join("");
     $("#homeList").innerHTML = body || '<p class="empty">Chưa có sân nào khớp bộ lọc. Thử chọn môn khác hoặc bỏ lọc địa điểm.</p>';
@@ -424,7 +497,8 @@
   function paintVenue() {
     var v = venue(state.venue), h = "";
     $("#vHero").className = "photo vhero sp-" + v.sport;
-    $("#vHero").innerHTML = glyph(v.sport, 76);
+    $("#vHero").style.backgroundImage = "url(" + photoSrc(v) + ")";
+    $("#vHero").innerHTML = "";
     $("#vName").textContent = v.name;
     $("#vAddr").textContent = v.addr + " · cách bạn " + String(v.dist).replace(".", ",") + " km";
     $("#vFacts").innerHTML = [
@@ -439,6 +513,8 @@
       h = '<p class="muted" style="margin:0 0 12px;font-size:13.5px">' + esc(v.blurb) + "</p>" +
         '<div class="card" style="padding:12px 14px;margin-bottom:10px"><p class="sect">Tiện ích</p>' +
         '<div class="amen">' + v.amen.map(function (a) { return "<span>" + esc(a) + "</span>"; }).join("") + "</div></div>" +
+        '<button class="btn ghost" data-go="status" data-stv="' + v.id + '" style="margin-bottom:10px">' +
+        '<svg class="ic"><use href="#i-grid"/></svg> Xem trạng thái sân theo giờ</button>' +
         '<div class="card" style="padding:12px 14px;margin-bottom:10px"><p class="sect">Sơ đồ sân</p>' + courtMap(v) + "</div>" +
         '<div class="card" style="padding:12px 14px"><p class="sect">Liên hệ</p>' +
         '<div class="kv"><span>Chủ sân</span><b>' + esc(v.owner) + "</b></div>" +
@@ -571,6 +647,9 @@
       '<div class="kv"><span>Ngày</span><b>' + d.wd + " " + d.dm + "</b></div>" +
       '<div class="kv"><span>Thanh toán</span><b>' + (state.method === "cash" ? "Trả tại sân" : "Đã thanh toán") + "</b></div>" +
       '<div class="kv"><span>Số tiền</span><b>' + vnd(t.total) + "</b></div>";
+    state.st.hours = [];
+    pushNotif("i-check", "Đặt sân thành công · " + code,
+      v.name + " · Sân " + state.book.court + " · " + hhmm(hs[0]) + " – " + hhmm(hs[hs.length - 1] + 1) + " " + d.rel + ".");
     state.stack = ["home"];
     go("done");
     toast("+" + Math.round(t.total / 1000) + " điểm thưởng");
@@ -657,52 +736,240 @@
     $("#nmNeed").textContent = state.nm.need;
   }
 
-  /* ---------------- map ---------------- */
+  /* ---------------- map (Google Maps nhung) ---------------- */
 
-  var MAPPOS = {
-    arena1: [96, 168], betaera: [168, 236], trongnghia: [122, 300],
-    hoamy: [60, 252], ankhe: [196, 118], golden: [252, 352],
-    tienson: [300, 420], sontra: [330, 196]
-  };
+  function mapsEmbed(v) {
+    return "https://www.google.com/maps?q=" + encodeURIComponent(v.addr) + "&z=16&hl=vi&output=embed";
+  }
+  function mapsLink(v) {
+    return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(v.addr);
+  }
 
   function paintMap() {
-    var s = "", v, p, id;
-    s += '<rect width="390" height="520" fill="#dce8f4"/>';
-    s += '<path d="M300 0c-18 90-6 170 22 250 26 74 40 160 34 270h34V0z" fill="#9fd0ea"/>';
-    s += '<path d="M0 436c120-10 210 4 300 36v48H0z" fill="#9fd0ea"/>';
-    [[18, 40, 120, 78], [150, 30, 118, 64], [26, 134, 96, 72], [138, 112, 136, 90],
-     [20, 224, 112, 84], [146, 218, 120, 96], [30, 326, 128, 86], [174, 326, 96, 78]]
-      .forEach(function (b, i) {
-        s += '<rect x="' + b[0] + '" y="' + b[1] + '" width="' + b[2] + '" height="' + b[3] + '" rx="6" fill="' + (i % 2 ? "#e9eff6" : "#eef3f9") + '"/>';
-      });
-    s += '<g stroke="#ffffff" stroke-width="13" stroke-linecap="round">' +
-      '<path d="M0 118h300M0 210h300M0 314h300M0 420h300"/>' +
-      '<path d="M140 0v440M258 0v430M34 0v430"/></g>';
-    s += '<g stroke="#f5c84a" stroke-width="4" stroke-dasharray="12 10" opacity=".85">' +
-      '<path d="M0 210h300M140 0v440"/></g>';
-    s += '<text x="318" y="120" font-size="11" fill="#2f6b96" font-family="system-ui" transform="rotate(90 318 120)">Sông Hàn</text>';
+    var v = venue(state.mapPick), fr = $("#mapFrame"), url = mapsEmbed(v);
+    if (fr.getAttribute("data-url") !== url) { fr.setAttribute("data-url", url); fr.src = url; }
 
-    VENUES.forEach(function (vv) {
-      p = MAPPOS[vv.id]; if (!p) return;
-      var sp = sport(vv.sport), on = state.mapPick === vv.id;
-      s += '<g class="mpin" data-mp="' + vv.id + '" transform="translate(' + (p[0] - 14) + "," + (p[1] - 36) + ") scale(" + (on ? 1.18 : .94) + ')">' +
-        '<path d="M15 1c7.7 0 14 6 14 13.5C29 24 15 36 15 36S1 24 1 14.5C1 7 7.3 1 15 1z" fill="' + sp.pin + '" stroke="#fff" stroke-width="2"/>' +
-        '<circle cx="15" cy="14" r="5.4" fill="#fff" opacity=".92"/></g>';
+    $$("#mapChips button").forEach(function (b) {
+      b.setAttribute("aria-pressed", b.dataset.mv === state.mapPick ? "true" : "false");
     });
-    s += '<g><circle cx="150" cy="268" r="19" fill="#1540d9" opacity=".16"/><circle cx="150" cy="268" r="7" fill="#1540d9" stroke="#fff" stroke-width="2.6"/></g>';
-    s += '<text x="150" y="300" text-anchor="middle" font-size="10.5" font-weight="700" fill="#1540d9" font-family="system-ui">Bạn đang ở đây</text>';
-    $("#mapSvg").innerHTML = s;
 
-    v = venue(state.mapPick);
     $("#mapSheet").innerHTML = '<div class="grab"></div>' +
       '<div class="row" style="align-items:flex-start">' +
-      '<span class="th photo sp-' + v.sport + '" style="width:46px;height:46px;border-radius:10px">' + glyph(v.sport, 28) + "</span>" +
+      '<img class="th" src="' + logoSrc(v) + '" alt="" style="width:46px;height:46px;border-radius:10px;object-fit:contain;background:#fff;border:1px solid var(--line);padding:3px">' +
       '<div style="flex:1;min-width:0"><b style="font-size:15px;display:block">' + esc(v.name) + "</b>" +
-      '<span class="tiny muted">' + esc(v.addr.split(",")[0]) + " · " + String(v.dist).replace(".", ",") + " km · ★ " + String(v.rating).replace(".", ",") + "</span>" +
-      '<p class="tiny" style="margin:3px 0 0;color:var(--brand-ink);font-weight:600">' +
-      (v.lo === v.hi ? vnd(v.lo) : vnd(v.lo) + " – " + vnd(v.hi)) + "/ giờ</p></div></div>" +
-      '<div class="row" style="margin-top:11px"><button class="btn sm" data-venue="' + v.id + '" style="flex:1">Xem sân</button>' +
-      '<button class="btn sm ghost" data-toast="Đang mở chỉ đường tới ' + esc(v.name) + '." style="flex:1">Chỉ đường</button></div>';
+      '<span class="tiny muted">' + esc(street(v)) + " · " + String(v.dist).replace(".", ",") + " km · ★ " + String(v.rating).replace(".", ",") + "</span>" +
+      '<p class="tiny" style="margin:3px 0 0;color:var(--brand-ink);font-weight:600">' + fromTo(v) + "</p></div></div>" +
+      '<div class="row" style="margin-top:11px">' +
+      '<button class="btn sm" data-venue="' + v.id + '" style="flex:1">Xem sân</button>' +
+      '<a class="btn sm ghost" href="' + mapsLink(v) + '" target="_blank" rel="noopener" style="flex:1;text-decoration:none">Chỉ đường</a></div>';
+  }
+
+  /* ---------------- trang thai san ---------------- */
+
+  var ST_LEGEND = [["sg-free", "Trống"], ["sg-taken", "Đã có người đặt"], ["sg-pick", "Bạn đang chọn"],
+                   ["sg-mine", "Lịch của bạn"], ["sg-lock", "Bảo trì"]];
+
+  function stHours(v) {
+    var out = [], i;
+    for (i = Math.max(v.open, 5); i < v.close; i++) out.push(i);
+    return out;
+  }
+  function stLocked(v, key, c, h) { return hash32("lock" + v.id + key + c + h) % 100 < 4; }
+  function stMine(v, key, c, h) {
+    return state.bookings.some(function (b) {
+      return b.venue === v.id && b.key === key && b.court === c && b.hours.indexOf(h) >= 0;
+    });
+  }
+  function stTotal() {
+    var v = venue(state.st.venue);
+    return state.st.hours.reduce(function (s, h) { return s + priceAt(v, h); }, 0);
+  }
+
+  function paintStatus() {
+    var st = state.st, v = venue(st.venue), d = DAYS[st.dateIdx], hs = stHours(v), c, i, head, rows = "";
+
+    $("#stVenue").value = st.venue;
+    $("#stDates").innerHTML = DAYS.map(function (x, i) {
+      return '<button class="chip" data-stdate="' + i + '" aria-pressed="' + (i === st.dateIdx) + '">' + x.wd + " " + x.dm + "</button>";
+    }).join("");
+    $("#stLegend").innerHTML = ST_LEGEND.map(function (l) {
+      return "<span><i class=\"" + l[0] + "\"></i>" + l[1] + "</span>";
+    }).join("");
+
+    head = '<thead><tr><th class="rowhead">Sân</th>' +
+      hs.map(function (h) { return "<th>" + hhmm(h) + "</th>"; }).join("") + "</tr></thead>";
+
+    for (c = 1; c <= v.courts; c++) {
+      rows += '<tr><th class="rowhead">Sân ' + c + "</th>";
+      for (i = 0; i < hs.length; i++) {
+        var h = hs[i], cls, label = "", dis = "";
+        if (stMine(v, d.key, c, h)) { cls = "mine"; label = "Bạn"; dis = " disabled"; }
+        else if (stLocked(v, d.key, c, h)) { cls = "lock"; dis = " disabled"; }
+        else if (isBooked(v, d.key, c, h)) { cls = "taken"; dis = " disabled"; }
+        else if (st.court === c && st.hours.indexOf(h) >= 0) { cls = "pick"; label = "✓"; }
+        else cls = "free";
+        rows += "<td>" + '<button class="cell ' + cls + '" data-stc="' + c + '" data-sth="' + h + '"' + dis +
+          ' aria-label="Sân ' + c + " " + hhmm(h) + '">' + label + "</button></td>";
+      }
+      rows += "</tr>";
+    }
+    $("#stGrid").innerHTML = head + "<tbody>" + rows + "</tbody>";
+
+    var sel = state.st.hours.slice().sort(function (a, b) { return a - b; });
+    $("#stSummary").innerHTML = sel.length
+      ? '<div class="sb"><span class="tiny muted">Sân ' + st.court + " · " + hhmm(sel[0]) + " – " + hhmm(sel[sel.length - 1] + 1) + " · " + d.dm + "</span>" +
+        '<span class="badge ok">' + sel.length + " giờ</span></div>" +
+        '<div class="sb" style="margin-top:8px"><b>Tạm tính</b><b class="num" style="font-size:17px">' + vnd(stTotal()) + "</b></div>"
+      : '<p class="tiny muted" style="margin:0">Chưa chọn ô nào. Ô trắng là giờ còn trống — bấm vào để giữ chỗ.</p>';
+  }
+
+  function stToggle(c, h) {
+    var st = state.st;
+    if (st.court !== c) { st.court = c; st.hours = [h]; return; }
+    var i = st.hours.indexOf(h);
+    if (i >= 0) { st.hours.splice(i, 1); return; }
+    if (!st.hours.length) { st.hours.push(h); return; }
+    var s = st.hours.slice().sort(function (a, b) { return a - b; });
+    if (h === s[0] - 1 || h === s[s.length - 1] + 1) st.hours.push(h);
+    else { st.hours = [h]; toast("Chỉ giữ được các ô liền nhau trên cùng một sân."); }
+  }
+
+  /* ---------------- thong bao ---------------- */
+
+  function paintNotif() {
+    var n = state.notifs;
+    $("#nfCount").textContent = n.length + " thông báo · " + n.filter(function (x) { return !x.read; }).length + " chưa đọc";
+    $("#nfList").innerHTML = n.length ? n.map(function (x, i) {
+      return '<button class="nrow' + (x.read ? "" : " unread") + '" data-nf="' + i + '">' +
+        '<span class="ni"><svg class="ic"><use href="#' + x.ic + '"/></svg></span>' +
+        '<span class="nb"><b>' + esc(x.title) + "</b><p>" + esc(x.body) + "</p></span>" +
+        '<span class="nt">' + esc(x.time) + "</span></button>";
+    }).join("") : '<p class="empty">Chưa có thông báo nào.</p>';
+
+    var ok = state.push === "on";
+    $("#nfPushState").textContent = ok ? "Đang bật — thông báo sẽ hiện ngoài trình duyệt"
+      : (typeof Notification === "undefined" ? "Trình duyệt này không hỗ trợ" : "Chưa bật");
+    $("#nfPush").textContent = ok ? "Tắt" : "Bật";
+  }
+
+  /* ---------------- sua ho so ---------------- */
+
+  function userLevel(sid) {
+    for (var i = 0; i < state.user.sports.length; i++) if (state.user.sports[i].id === sid) return state.user.sports[i].level;
+    return null;
+  }
+
+  function paintEditProfile() {
+    var u = state.user;
+    $("#epAv").textContent = initials(u.name);
+    $("#epName").value = u.name;
+    $("#epPhone").value = u.phone;
+    $("#epEmail").value = u.email;
+    $("#epBio").value = u.bio;
+    $("#epSports").innerHTML = SPORTS.map(function (s) {
+      var lv = userLevel(s.id), on = lv !== null;
+      return '<div class="card" style="padding:10px 12px"><div class="sb">' +
+        '<button class="chip" data-epsport="' + s.id + '" aria-pressed="' + on + '">' + esc(s.name) + "</button>" +
+        (on
+          ? '<select class="field" data-eplevel="' + s.id + '" style="width:auto;padding:7px 10px;font-size:13px">' +
+            LEVELS.map(function (l) { return "<option" + (l === lv ? " selected" : "") + ">" + l + "</option>"; }).join("") + "</select>"
+          : '<span class="tiny muted">Chưa chọn</span>') +
+        "</div></div>";
+    }).join("");
+  }
+
+  /* ---------------- quan ly san (chu san) ---------------- */
+
+  var MG_TABS = [["lich", "Lịch đặt", "i-cal"], ["san", "Sân", "i-grid"], ["doanhthu", "Doanh thu", "i-money"], ["dichvu", "Dịch vụ", "i-bag"]];
+
+  function mgBookings() {
+    var v = venue(state.mg.venue), d = DAYS[0], out = [], c, h, seed;
+    for (c = 1; c <= v.courts; c++) {
+      for (h = Math.max(v.open, 5); h < v.close; h++) {
+        if (!isBooked(v, d.key, c, h)) continue;
+        seed = hash32(v.id + d.key + c + h);
+        out.push({
+          court: c, h: h, who: CUSTOMERS[seed % CUSTOMERS.length],
+          phone: "09" + ("0000000" + (seed % 100000000)).slice(-8),
+          paid: seed % 3 !== 0, price: priceAt(v, h)
+        });
+      }
+    }
+    return out.sort(function (a, b) { return a.h - b.h || a.court - b.court; });
+  }
+
+  function mgWeek() {
+    var v = venue(state.mg.venue), out = [], i, d, key, base = new Date();
+    base.setHours(0, 0, 0, 0);
+    for (i = 6; i >= 0; i--) {
+      d = new Date(base.getTime() - i * 86400000);
+      key = d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+      out.push({ wd: WD[d.getDay()], today: i === 0, amount: (6 + hash32(v.id + key) % 11) * v.hi });
+    }
+    return out;
+  }
+
+  function paintManage() {
+    var mg = state.mg, v = venue(mg.venue), h = "";
+    $("#mgVenue").value = mg.venue;
+    $("#mgTabs").innerHTML = MG_TABS.map(function (t) {
+      return '<button class="chip" data-mgt="' + t[0] + '" aria-pressed="' + (mg.tab === t[0]) + '">' + t[1] + "</button>";
+    }).join("");
+
+    if (mg.tab === "lich") {
+      var bk = mgBookings(), shown = bk.slice(0, 14);
+      h = '<div class="kpi" style="margin-bottom:12px">' +
+        '<div class="k"><b>' + bk.length + "</b><span>Lượt đặt hôm nay</span></div>" +
+        '<div class="k"><b>' + bk.filter(function (x) { return x.paid; }).length + "</b><span>Đã thanh toán</span></div>" +
+        '<div class="k"><b>' + bk.filter(function (x) { return !x.paid; }).length + "</b><span>Chờ thu tại sân</span></div></div>" +
+        '<div class="card" style="padding:2px 14px">' +
+        (shown.length ? shown.map(function (b) {
+          return '<div class="bkrow"><span class="tm">' + hhmm(b.h) + "<br>Sân " + b.court + "</span>" +
+            '<span class="who"><b>' + esc(b.who) + '</b><span class="tiny muted">' + esc(b.phone) + " · " + vnd(b.price) + "</span></span>" +
+            '<span class="badge ' + (b.paid ? "ok" : "need") + '">' + (b.paid ? "Đã T.Toán" : "Chưa T.Toán") + "</span></div>";
+        }).join("") : '<p class="empty">Hôm nay chưa có lượt đặt nào.</p>') + "</div>" +
+        (bk.length > 14 ? '<p class="tiny muted" style="margin:9px 0 0">Còn ' + (bk.length - 14) + " lượt nữa trong ngày.</p>" : "");
+
+    } else if (mg.tab === "san") {
+      var i, rows = "";
+      for (i = 1; i <= v.courts; i++) {
+        var off = mg.off[mg.venue + "-" + i];
+        rows += '<div class="bkrow"><span class="who"><b>Sân ' + i + "</b>" +
+          '<span class="tiny muted">' + vnd(v.lo) + " giờ thường · " + vnd(v.hi) + " cao điểm</span></span>" +
+          '<span class="badge ' + (off ? "need" : "ok") + '" style="align-self:center">' + (off ? "Bảo trì" : "Đang mở") + "</span>" +
+          '<button class="toggle" data-mgoff="' + i + '" aria-pressed="' + (!off) + '" aria-label="Bật tắt sân ' + i + '" style="align-self:center"></button></div>';
+      }
+      h = '<div class="card" style="padding:2px 14px">' + rows + "</div>" +
+        '<p class="tiny muted" style="margin:9px 0 0">Tắt một sân sẽ ẩn toàn bộ khung giờ của sân đó khỏi trang đặt.</p>';
+
+    } else if (mg.tab === "doanhthu") {
+      var wk = mgWeek(), max = Math.max.apply(null, wk.map(function (x) { return x.amount; }));
+      var today = wk[wk.length - 1].amount, week = wk.reduce(function (s, x) { return s + x.amount; }, 0);
+      h = '<div class="kpi" style="margin-bottom:12px">' +
+        '<div class="k"><b>' + vnd(today) + "</b><span>Hôm nay</span></div>" +
+        '<div class="k"><b>' + vnd(week) + "</b><span>7 ngày qua</span></div>" +
+        '<div class="k"><b>' + vnd(Math.round(week / 7)) + "</b><span>Trung bình/ngày</span></div></div>" +
+        '<div class="card" style="padding:12px 14px"><p class="sect">Doanh thu 7 ngày</p>' +
+        '<div class="bars">' + wk.map(function (x) {
+          return '<div class="b' + (x.today ? " today" : "") + '"><span class="bar" style="height:' + Math.round(x.amount / max * 92) + 'px"></span>' +
+            '<span class="lb">' + x.wd + "</span></div>";
+        }).join("") + "</div>" +
+        '<p class="tiny muted" style="margin:10px 0 0">Cột vàng là hôm nay. Cao nhất trong tuần: ' + vnd(max) + ".</p></div>" +
+        '<div class="card" style="padding:12px 14px;margin-top:10px"><p class="sect">Khung giờ bán chạy</p>' +
+        '<div class="kv"><span>19:00 – 21:00</span><b>' + Math.round(38 + hash32(v.id) % 12) + "% lượt đặt</b></div>" +
+        '<div class="kv"><span>17:00 – 19:00</span><b>' + Math.round(22 + hash32(v.id + "b") % 10) + "% lượt đặt</b></div>" +
+        '<div class="kv"><span>Sáng sớm</span><b>' + Math.round(9 + hash32(v.id + "c") % 8) + "% lượt đặt</b></div></div>";
+
+    } else {
+      h = '<div class="card" style="padding:2px 14px">' + SERVICES.map(function (s) {
+        var key = mg.venue + "-" + s.id, on = (key in mg.svc) ? mg.svc[key] : s.on;
+        return '<div class="bkrow"><span class="who"><b>' + esc(s.name) + "</b>" +
+          '<span class="tiny muted">' + vnd(s.price) + " / " + esc(s.unit) + "</span></span>" +
+          '<button class="toggle" data-mgsvc="' + s.id + '" aria-pressed="' + on + '" aria-label="Bật tắt ' + esc(s.name) + '" style="align-self:center"></button></div>';
+      }).join("") + "</div>" +
+        '<p class="tiny muted" style="margin:9px 0 0">Dịch vụ đang bật sẽ hiện ở bước thanh toán của khách.</p>';
+    }
+    $("#mgBody").innerHTML = h;
   }
 
   /* ---------------- profile ---------------- */
@@ -711,10 +978,13 @@
     var u = state.user;
     $("#pfAv").textContent = initials(u.name);
     $("#pfName").textContent = u.name;
-    $("#pfSub").textContent = u.phone + " · Tham gia từ " + u.since;
-    $("#pfSports").innerHTML =
-      '<span class="chip on">Cầu lông · Trung bình</span><span class="chip">Pickleball · Mới chơi</span>' +
-      '<button class="chip" data-toast="Chọn thêm môn bạn hay chơi.">+ Thêm môn</button>';
+    $("#pfSub").textContent = u.phone + " · " + (state.role === "owner" ? "Chủ sân" : "Người chơi") + " · Tham gia từ " + u.since;
+    $("#pfSports").innerHTML = (u.sports.length
+      ? u.sports.map(function (s, i) {
+          return '<span class="chip' + (i === 0 ? " on" : "") + '">' + esc(sport(s.id).name) + " · " + esc(s.level) + "</span>";
+        }).join("")
+      : '<span class="tiny muted">Chưa chọn môn nào.</span>') +
+      '<button class="chip" data-go="editprofile">+ Thêm môn</button>';
     $("#pfStats").innerHTML =
       '<div class="stat"><b>' + (state.played + MATCHES.filter(function (m) { return m.mine; }).length) + "</b><span>Trận đã chơi</span></div>" +
       '<div class="stat"><b>' + (7 + state.bookings.length) + "</b><span>Lượt đặt sân</span></div>" +
@@ -735,14 +1005,18 @@
         '<button class="btn sm" data-go="home">Đặt sân ngay</button></div>';
     }
 
-    $("#pfMenu").innerHTML = [
+    var items = [
       ["i-hist", "Lịch sử đặt sân", "history"],
       ["i-star", "Kèo của tôi", "mymatch"],
       ["i-heart", "Sân yêu thích", "fav"],
+      ["i-grid", "Trạng thái sân", "status"],
+      ["i-bell", "Thông báo", "notif"],
       ["i-ticket", "Ưu đãi và điểm thưởng", "reward"],
       ["i-card", "Phương thức thanh toán", "pay"],
       ["i-gear", "Cài đặt và hỗ trợ", "help"]
-    ].map(function (m) {
+    ];
+    if (state.role === "owner") items.splice(3, 0, ["i-money", "Quản lý sân", "manage"]);
+    $("#pfMenu").innerHTML = items.map(function (m) {
       return '<button data-menu="' + m[2] + '"><svg class="ic"><use href="#' + m[0] + '"/></svg><span class="sp">' + m[1] + "</span>" +
         '<svg class="ic cv"><use href="#i-right"/></svg></button>';
     }).join("");
@@ -808,14 +1082,25 @@
       '<button class="chip" data-f="today">Hôm nay</button>' +
       SPORTS.map(function (s) { return '<button class="chip" data-f="' + s.id + '">' + esc(s.name) + "</button>"; }).join("");
 
-    $("#tabbar").innerHTML = TABS.map(function (t) {
-      return '<button data-tab="' + t.id + '"><svg class="ic"><use href="#' + t.ic + '"/></svg>' + t.name + "</button>";
+    paintTabs();
+
+    var vopts = VENUES.map(function (v) { return '<option value="' + v.id + '">' + esc(v.name) + "</option>"; }).join("");
+    $("#stVenue").innerHTML = vopts;
+    $("#mgVenue").innerHTML = vopts;
+    $("#mapChips").innerHTML = VENUES.map(function (v) {
+      return '<button class="chip" data-mv="' + v.id + '">' + esc(v.name) + "</button>";
     }).join("");
+
+    state.notifs = SEED_NOTIFS.map(function (n) {
+      return { ic: n.ic, title: n.title, body: n.body, time: n.time, read: n.read };
+    });
 
     $("#jump").innerHTML = [
       ["login", "Đăng nhập"], ["register", "Đăng ký"], ["home", "Trang chủ"], ["search", "Tìm sân"],
       ["venue", "Chi tiết sân"], ["booking", "Chọn giờ"], ["payment", "Thanh toán"], ["done", "Hoàn tất"],
-      ["matches", "Ghép kèo"], ["match", "Chi tiết kèo"], ["newmatch", "Tạo kèo"], ["map", "Bản đồ"], ["profile", "Cá nhân"]
+      ["status", "Trạng thái sân"], ["matches", "Ghép kèo"], ["match", "Chi tiết kèo"], ["newmatch", "Tạo kèo"],
+      ["map", "Bản đồ"], ["notif", "Thông báo"], ["profile", "Cá nhân"], ["editprofile", "Sửa hồ sơ"],
+      ["manage", "Quản lý sân"]
     ].map(function (j) { return '<button data-go="' + j[0] + '">' + j[1] + "</button>"; }).join("");
 
     tickClock();
@@ -842,8 +1127,29 @@
       t = e.target.closest("[data-toast]"); if (t) { toast(t.dataset.toast); return; }
       t = e.target.closest("[data-oauth]"); if (t) { toast("Liên kết " + t.dataset.oauth + " chưa bật ở bản mẫu."); return; }
       t = e.target.closest("[data-venue]"); if (t) { openVenue(t.dataset.venue); return; }
+      t = e.target.closest("[data-stv]"); if (t) { state.st.venue = t.dataset.stv; state.st.court = 0; state.st.hours = []; }
       t = e.target.closest("[data-go]"); if (t) { go(t.dataset.go); return; }
-      t = e.target.closest("[data-mp]"); if (t) { state.mapPick = t.dataset.mp; paintMap(); return; }
+      t = e.target.closest("[data-mv]"); if (t) { state.mapPick = t.dataset.mv; paintMap(); return; }
+      t = e.target.closest("[data-stdate]"); if (t) { state.st.dateIdx = +t.dataset.stdate; state.st.hours = []; paintStatus(); paintCta("status"); return; }
+      t = e.target.closest("[data-sth]"); if (t) { stToggle(+t.dataset.stc, +t.dataset.sth); paintStatus(); paintCta("status"); return; }
+      t = e.target.closest("[data-nf]"); if (t) { state.notifs[+t.dataset.nf].read = true; paintNotif(); paintBell(); return; }
+      t = e.target.closest("[data-mgt]"); if (t) { state.mg.tab = t.dataset.mgt; paintManage(); return; }
+      t = e.target.closest("[data-mgoff]"); if (t) {
+        var ck = state.mg.venue + "-" + t.dataset.mgoff;
+        state.mg.off[ck] = !state.mg.off[ck]; paintManage();
+        toast(state.mg.off[ck] ? "Đã chuyển sân " + t.dataset.mgoff + " sang bảo trì." : "Đã mở lại sân " + t.dataset.mgoff + ".");
+        return;
+      }
+      t = e.target.closest("[data-mgsvc]"); if (t) {
+        var sk = state.mg.venue + "-" + t.dataset.mgsvc, cur = t.getAttribute("aria-pressed") === "true";
+        state.mg.svc[sk] = !cur; paintManage(); return;
+      }
+      t = e.target.closest("[data-epsport]"); if (t) {
+        var sid = t.dataset.epsport, arr = state.user.sports, k = -1, z;
+        for (z = 0; z < arr.length; z++) if (arr[z].id === sid) k = z;
+        if (k >= 0) arr.splice(k, 1); else arr.push({ id: sid, level: "Mới chơi" });
+        paintEditProfile(); return;
+      }
       t = e.target.closest("[data-copy]"); if (t) {
         var code = t.dataset.copy;
         if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -886,6 +1192,37 @@
       t = e.target.closest("#tabbar button"); if (t) { state.stack = []; go(t.dataset.tab, false); return; }
     });
 
+    document.addEventListener("change", function (e) {
+      var t = e.target.closest ? e.target.closest("[data-eplevel]") : null;
+      if (!t) return;
+      var sid = t.dataset.eplevel, i;
+      for (i = 0; i < state.user.sports.length; i++) {
+        if (state.user.sports[i].id === sid) state.user.sports[i].level = t.value;
+      }
+    });
+
+    $("#btnBell").addEventListener("click", function () { go("notif"); });
+    $("#stVenue").addEventListener("change", function () {
+      state.st.venue = this.value; state.st.court = 0; state.st.hours = [];
+      paintStatus(); paintCta("status");
+    });
+    $("#mgVenue").addEventListener("change", function () { state.mg.venue = this.value; paintManage(); });
+    $("#nfReadAll").addEventListener("click", function () {
+      state.notifs.forEach(function (n) { n.read = true; });
+      paintNotif(); paintBell(); toast("Đã đánh dấu tất cả là đã đọc.");
+    });
+    $("#nfPush").addEventListener("click", function () {
+      if (state.push === "on") { state.push = "off"; paintNotif(); toast("Đã tắt thông báo đẩy."); return; }
+      if (typeof Notification === "undefined") { toast("Trình duyệt này không hỗ trợ thông báo đẩy."); return; }
+      try {
+        Promise.resolve(Notification.requestPermission()).then(function (p) {
+          if (p === "granted") { state.push = "on"; toast("Đã bật thông báo đẩy."); }
+          else toast("Bạn đã từ chối quyền thông báo.");
+          paintNotif();
+        }, function () { toast("Không xin được quyền thông báo."); });
+      } catch (err) { toast("Trình duyệt chặn thông báo trong khung nhúng."); }
+    });
+
     $("#btnBack").addEventListener("click", back);
     $("#btnFav").addEventListener("click", function () {
       state.fav[state.venue] = !state.fav[state.venue];
@@ -895,8 +1232,11 @@
 
     $("#doLogin").addEventListener("click", function () {
       if (!$("#loginId").value.trim() || !$("#loginPw").value) { toast("Nhập đủ tài khoản và mật khẩu."); return; }
+      paintTabs();
       state.stack = []; go("home", false);
-      toast("Xin chào, " + state.user.name.split(" ").pop() + "!");
+      toast(state.role === "owner"
+        ? "Chào chủ sân — tab Quản lý đã sẵn sàng."
+        : "Xin chào, " + state.user.name.split(" ").pop() + "!");
     });
     $("#goReg").addEventListener("click", function () { go("register"); });
     $("#goLogin").addEventListener("click", function () { go("login"); });
@@ -908,7 +1248,12 @@
       if (!$("#regAgree").checked) { toast("Cần đồng ý điều khoản sử dụng."); return; }
       state.user.name = n;
       state.user.phone = $("#regId").value.trim() || state.user.phone;
+      state.user.sports = $$("#regSports [aria-pressed='true']").map(function (b) {
+        return { id: b.dataset.regsport, level: "Mới chơi" };
+      });
+      paintTabs();
       state.stack = []; go("home", false);
+      pushNotif("i-user", "Chào mừng tới SMate", "Tài khoản " + n + " đã sẵn sàng. Đặt sân đầu tiên để nhận 50 điểm thưởng.");
       toast("Tạo tài khoản thành công.");
     });
 
@@ -952,7 +1297,12 @@
       else if (n === "match") {
         m = match(state.match); if (!m) return;
         if (m.mine) { m.mine = false; m.joined--; m.names.pop(); toast("Đã rời kèo."); }
-        else { m.mine = true; m.joined++; m.names.push(state.user.name); toast("Đã tham gia kèo của " + m.host + "."); }
+        else {
+          m.mine = true; m.joined++; m.names.push(state.user.name);
+          pushNotif("i-star", "Đã vào kèo của " + m.host,
+            m.kind + " · " + m.time + " " + DAYS[m.day].rel + " tại " + venue(m.venue).name + ".");
+          toast("Đã tham gia kèo của " + m.host + ".");
+        }
         paintMatch(); paintCta("match");
       } else if (n === "newmatch") {
         var cost = parseInt(String($("#nmCost").value).replace(/\D/g, ""), 10) || 0;
@@ -966,7 +1316,32 @@
         });
         state.match = id; state.mTab = "mine";
         state.stack = ["matches"]; go("match");
+        pushNotif("i-star", "Kèo của bạn đã được đăng",
+          sport(state.nm.sport).name + " · " + state.nm.time + " · " + venue(state.nm.venue).name + ".");
         toast("Đã đăng kèo. Đang chờ người tham gia.");
+
+      } else if (n === "status") {
+        var sv = venue(state.st.venue), sh = state.st.hours.slice().sort(function (a, b) { return a - b; });
+        if (!sh.length) return;
+        state.venue = state.st.venue;
+        state.book = { dateIdx: state.st.dateIdx, court: state.st.court, hours: sh.slice() };
+        state.voucher = null;
+        $("#pCodeMsg").innerHTML = "Thử mã <b>SMATE10</b> (giảm 10%) hoặc <b>NEWBIE</b> (giảm 20.000đ).";
+        pushNotif("i-clock", "Bạn đã giữ được sân",
+          sv.name + " · Sân " + state.st.court + " · " + hhmm(sh[0]) + " – " + hhmm(sh[sh.length - 1] + 1) +
+          " " + DAYS[state.st.dateIdx].rel + ". Thanh toán trong 15 phút để giữ chỗ.");
+        toast("Bạn đã đặt được sân — chuyển sang thanh toán.");
+        go("payment");
+
+      } else if (n === "editprofile") {
+        var nm = $("#epName").value.trim();
+        if (!nm) { toast("Nhập họ và tên."); return; }
+        state.user.name = nm;
+        state.user.phone = $("#epPhone").value.trim() || state.user.phone;
+        state.user.email = $("#epEmail").value.trim();
+        state.user.bio = $("#epBio").value.trim();
+        toast("Đã lưu hồ sơ.");
+        back();
       }
     });
 
@@ -978,6 +1353,7 @@
 
   function menu(k) {
     if (k === "mymatch") { state.mTab = "mine"; go("matches"); return; }
+    if (k === "status" || k === "notif" || k === "manage") { go(k); return; }
     if (k === "history") { state.listKind = { id: "history", title: "Lịch sử đặt sân" }; go("list"); return; }
     if (k === "fav") { state.listKind = { id: "fav", title: "Sân yêu thích" }; go("list"); return; }
     if (k === "reward") { state.listKind = { id: "reward", title: "Ưu đãi và điểm thưởng" }; go("list"); return; }
