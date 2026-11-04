@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+~$*
+Thumbs.db
+.DS_Store
+.vscode/
+.idea/
+
+# tai lieu thiet ke goc, khong day len repo cong khai
+*.docx
+*.doc
