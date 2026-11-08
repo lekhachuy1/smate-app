@@ -228,8 +228,9 @@ input,select,textarea{font:inherit;color:inherit}
 .sports .pin{width:42px;height:50px}
 .sports .nm{font-size:10.5px;font-weight:600;color:var(--brand-ink);text-align:center;line-height:1.25}
 .sports button[aria-pressed="true"] .nm{text-decoration:underline;text-underline-offset:3px}
-.sports button[aria-pressed="true"] .pin{filter:drop-shadow(0 3px 7px rgba(21,64,217,.45))}
-.sports button[aria-pressed="false"] .pin{opacity:.55;filter:saturate(.5)}
+.sports .pin{filter:drop-shadow(0 2px 5px rgba(16,26,46,.28))}
+.sports button[aria-pressed="true"] .pin{filter:drop-shadow(0 4px 9px rgba(21,64,217,.5)) saturate(1.1)}
+.sports button[aria-pressed="false"] .pin{opacity:.88}
 
 .filterbar{display:flex;align-items:center;gap:8px;padding:10px 16px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-top:6px;background:var(--surface)}
 .filterbar .k{font-size:14px;color:var(--brand-ink)}

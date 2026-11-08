@@ -228,8 +228,9 @@ input,select,textarea{font:inherit;color:inherit}
 .sports .pin{width:42px;height:50px}
 .sports .nm{font-size:10.5px;font-weight:600;color:var(--brand-ink);text-align:center;line-height:1.25}
 .sports button[aria-pressed="true"] .nm{text-decoration:underline;text-underline-offset:3px}
-.sports button[aria-pressed="true"] .pin{filter:drop-shadow(0 3px 7px rgba(21,64,217,.45))}
-.sports button[aria-pressed="false"] .pin{opacity:.55;filter:saturate(.5)}
+.sports .pin{filter:drop-shadow(0 2px 5px rgba(16,26,46,.28))}
+.sports button[aria-pressed="true"] .pin{filter:drop-shadow(0 4px 9px rgba(21,64,217,.5)) saturate(1.1)}
+.sports button[aria-pressed="false"] .pin{opacity:.88}
 
 .filterbar{display:flex;align-items:center;gap:8px;padding:10px 16px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-top:6px;background:var(--surface)}
 .filterbar .k{font-size:14px;color:var(--brand-ink)}
@@ -891,11 +892,11 @@ input,select,textarea{font:inherit;color:inherit}
   /* ---------------- data ---------------- */
 
   var SPORTS = [
-    { id: "pickleball", name: "Pickleball", pin: "#2f6bff", deep: "#1b3fae" },
-    { id: "cau-long", name: "Cầu lông", pin: "#22b573", deep: "#11794b" },
-    { id: "bong-da", name: "Bóng đá", pin: "#1d9b3f", deep: "#115c26" },
-    { id: "bong-ro", name: "Bóng rổ", pin: "#efa021", deep: "#a3650c" },
-    { id: "tennis", name: "Quần vợt", pin: "#b6762a", deep: "#6d4415" }
+    { id: "pickleball", name: "Pickleball", pin: "#5b95ff", deep: "#2a5ae8" },
+    { id: "cau-long", name: "Cầu lông", pin: "#3fe39b", deep: "#13b26c" },
+    { id: "bong-da", name: "Bóng đá", pin: "#54dd72", deep: "#1aa845" },
+    { id: "bong-ro", name: "Bóng rổ", pin: "#ffbe4d", deep: "#f08a16" },
+    { id: "tennis", name: "Quần vợt", pin: "#dced52", deep: "#9cc41c" }
   ];
 
   var VENUES = [
@@ -1182,7 +1183,7 @@ input,select,textarea{font:inherit;color:inherit}
       '<defs><linearGradient id="pg-' + s.id + '" x1="0" y1="0" x2="0" y2="1">' +
       '<stop offset="0" stop-color="' + s.pin + '"/><stop offset="1" stop-color="' + s.deep + '"/></linearGradient></defs>' +
       '<path d="M22 1c11 0 20 8.6 20 19.3C42 33 22 51 22 51S2 33 2 20.3C2 9.6 11 1 22 1z" fill="url(#pg-' + s.id + ')" stroke="#ffffff" stroke-width="2.4"/>' +
-      '<circle cx="22" cy="20" r="13" fill="rgba(255,255,255,.22)"/>' +
+      '<circle cx="22" cy="20" r="13" fill="rgba(255,255,255,.3)"/>' +
       '<g transform="translate(22 20) scale(.36) translate(-38 -38)">' + glyph(s.id, 76).replace(/^<svg[^>]*>/, "").replace(/<\/svg>$/, "") + "</g></svg>";
   }
 
