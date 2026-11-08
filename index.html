@@ -273,7 +273,8 @@ input,select,textarea{font:inherit;color:inherit}
 .searchbar input::placeholder{color:var(--brand-ink);opacity:.6}
 
 .gcards{display:flex;flex-direction:column;gap:12px;padding:14px 16px}
-.gcard{border-radius:var(--r-m);overflow:hidden;height:134px;width:100%;text-align:left;box-shadow:var(--shadow-1);transition:transform .14s,box-shadow .14s}
+.gcard{display:block;border-radius:var(--r-m);overflow:hidden;height:134px;width:100%;padding:0;text-align:left;box-shadow:var(--shadow-1);transition:transform .14s,box-shadow .14s}
+.gcard .photo{width:100%;height:100%}
 .gcard:hover{transform:translateY(-2px);box-shadow:var(--shadow-2)}
 
 /* venue */
