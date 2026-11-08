@@ -166,7 +166,7 @@
   var state = {
     role: "player",
     user: {
-      name: "Lê Khắc Huy", phone: "0905 123 456", since: "03/2026", email: "huy@smate.vn",
+      name: "Nguyễn Văn Chương", phone: "0905 123 456", since: "03/2026", email: "chuong@smate.vn",
       bio: "Chơi cầu lông 3 năm, hay đánh khung 19 giờ quanh Thanh Khê.",
       sports: [{ id: "cau-long", level: "Trung bình" }, { id: "pickleball", level: "Mới chơi" }]
     },
