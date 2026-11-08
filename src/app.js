@@ -20,7 +20,7 @@
       id: "arena1", name: "Sân Arena.01", sport: "cau-long",
       addr: "40 Hoàng Văn Thái, phường Hòa Khánh Nam, Đà Nẵng", area: "Thanh Khê",
       lo: 60000, hi: 80000, courts: 3, rating: 4.8, reviews: 126,
-      open: 6, close: 23, phone: "0236 3765 112", owner: "Trần Quốc Việt",
+      open: 5, close: 22, phone: "0236 3765 112", owner: "Trần Quốc Việt",
       blurb: "Cụm 3 sân cầu lông thảm Enlio, trần cao 9 m, hệ đèn LED chống chói đạt chuẩn thi đấu phong trào.",
       amen: ["Bãi giữ xe", "Nước uống", "Phòng thay đồ", "Cho thuê vợt", "Căng vợt tại chỗ"],
       dist: 1.2
@@ -29,7 +29,7 @@
       id: "hoamy", name: "Hòa Mỹ Pickleball", sport: "pickleball",
       addr: "67 Tô Hiệu, phường Hòa Minh, Đà Nẵng", area: "Thanh Khê",
       lo: 80000, hi: 150000, courts: 4, rating: 4.7, reviews: 98,
-      open: 6, close: 22, phone: "0236 3822 404", owner: "Nguyễn Hòa Mỹ",
+      open: 5, close: 22, phone: "0236 3822 404", owner: "Nguyễn Hòa Mỹ",
       blurb: "4 sân pickleball mặt acrylic ngoài trời, có mái che lưới, mở sớm cho khung giờ sáng.",
       amen: ["Bãi giữ xe", "Nước uống", "Cho thuê paddle", "Bóng thi đấu", "Khu nghỉ có quạt"],
       dist: 2.4
@@ -47,7 +47,7 @@
       id: "golden", name: "Golden Tennis Academy", sport: "tennis",
       addr: "Tầng 7, 271 Nguyễn Văn Linh, phường Hải Châu, Đà Nẵng", area: "Hải Châu",
       lo: 100000, hi: 160000, courts: 2, rating: 4.9, reviews: 64,
-      open: 6, close: 22, phone: "0236 3651 889", owner: "Phạm Hoàng Long",
+      open: 5, close: 22, phone: "0236 3651 889", owner: "Phạm Hoàng Long",
       blurb: "2 sân tennis mặt cứng trên tầng thượng, có HLV kèm theo giờ và máy bắn bóng cho buổi tập cá nhân.",
       amen: ["Thang máy", "Nước uống", "Phòng thay đồ", "Cho thuê vợt", "Máy bắn bóng"],
       dist: 4.6
@@ -56,7 +56,7 @@
       id: "trongnghia", name: "Sân Trọng Nghĩa", sport: "cau-long",
       addr: "194 Bế Văn Đàn, phường Chính Gián, Đà Nẵng", area: "Thanh Khê",
       lo: 55000, hi: 75000, courts: 6, rating: 4.5, reviews: 142,
-      open: 6, close: 22, phone: "0905 414 272", owner: "Đặng Trọng Nghĩa",
+      open: 5, close: 22, phone: "0905 414 272", owner: "Đặng Trọng Nghĩa",
       blurb: "6 sân cầu lông trong nhà, sàn gỗ công nghiệp, giá mềm nhất khu vực Chính Gián.",
       amen: ["Bãi giữ xe", "Nước uống", "Cho thuê vợt", "Quầy cầu Hải Yến"],
       dist: 2.0
@@ -65,7 +65,7 @@
       id: "betaera", name: "Sân BetaEra", sport: "cau-long",
       addr: "273 – 275 Nguyễn Tri Phương, phường Thạc Gián, Đà Nẵng", area: "Thanh Khê",
       lo: 65000, hi: 90000, courts: 5, rating: 4.7, reviews: 175,
-      open: 6, close: 23, phone: "0236 3702 456", owner: "Hồ Thanh Bình",
+      open: 5, close: 22, phone: "0236 3702 456", owner: "Hồ Thanh Bình",
       blurb: "5 sân thảm, điều hòa toàn khu, có khu khán đài nhỏ cho giải phong trào cuối tuần.",
       amen: ["Điều hòa", "Bãi giữ xe", "Nước uống", "Phòng thay đồ", "Khán đài"],
       dist: 1.8
@@ -74,7 +74,7 @@
       id: "tienson", name: "Nhà thi đấu Tiên Sơn", sport: "bong-ro",
       addr: "1 Phan Đăng Lưu, phường Hòa Cường Bắc, Đà Nẵng", area: "Hải Châu",
       lo: 120000, hi: 180000, courts: 2, rating: 4.6, reviews: 88,
-      open: 6, close: 22, phone: "0236 3621 999", owner: "Ban quản lý NTĐ",
+      open: 5, close: 22, phone: "0236 3621 999", owner: "Ban quản lý NTĐ",
       blurb: "2 sân bóng rổ tiêu chuẩn trong nhà thi đấu, vành rổ lò xo, bảng mica thi đấu.",
       amen: ["Bãi giữ xe", "Phòng thay đồ", "Cho thuê bóng", "Nước uống"],
       dist: 5.3
@@ -221,10 +221,11 @@
     return (h >>> 0);
   }
   function hhmm(h) { return (h < 10 ? "0" + h : h) + ":00"; }
+  function hshort(h) { return h + ":00"; }
   function logoSrc(v) { return "assets/logo-" + v.id + ".jpg"; }
   function photoSrc(v) { return "assets/v-" + v.id + ".jpg"; }
   function street(v) { return STREET[v.id] || v.addr.split(",")[0]; }
-  function opens(v) { return hhmm(v.open) + " – " + hhmm(v.close); }
+  function opens(v) { return hshort(v.open) + " – " + hshort(v.close); }
   function fromTo(v) { return "Từ " + kk(v.lo) + "-" + kk(v.hi) + "/ giờ"; }
 
   function pushNotif(ic, title, body) {
@@ -409,9 +410,6 @@
     $$("#tabbar button").forEach(function (b) {
       b.setAttribute("aria-current", b.dataset.tab === cfg.tab ? "page" : "false");
     });
-    $$("#jump button").forEach(function (b) {
-      b.setAttribute("aria-current", b.dataset.go === n ? "true" : "false");
-    });
 
     var painters = {
       home: paintHome, search: paintSearch, venue: paintVenue, booking: paintBooking,
@@ -462,8 +460,9 @@
       return '<button class="vrow" data-venue="' + v.id + '">' +
         '<img class="th" src="' + logoSrc(v) + '" alt="" loading="lazy">' +
         '<span class="mid"><span class="nm">' + esc(v.name) + "</span>" +
-        '<span class="mt">' + opens(v) + " · " + esc(street(v)) + "</span>" +
-        '<span class="mt">' + fromTo(v) + "</span></span>" +
+        '<span class="mt">' + opens(v) + "</span>" +
+        '<span class="mt">' + esc(street(v)) + "</span>" +
+        '<span class="mt pr">' + fromTo(v) + "</span></span>" +
         '<span class="bk">ĐẶT</span></button>';
     }).join("");
     $("#homeList").innerHTML = body || '<p class="empty">Chưa có sân nào khớp bộ lọc. Thử chọn môn khác hoặc bỏ lọc địa điểm.</p>';
@@ -505,7 +504,7 @@
       '<span class="badge">★ ' + String(v.rating).replace(".", ",") + " · " + v.reviews + " đánh giá</span>",
       '<span class="badge">' + esc(sport(v.sport).name) + "</span>",
       '<span class="badge">' + v.courts + " sân</span>",
-      '<span class="badge">Mở ' + hhmm(v.open) + " – " + hhmm(v.close) + "</span>"
+      '<span class="badge">Mở ' + opens(v) + "</span>"
     ].join("");
     $$("#vTabs button").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.t === state.vTab ? "true" : "false"); });
 
@@ -519,10 +518,10 @@
         '<div class="card" style="padding:12px 14px"><p class="sect">Liên hệ</p>' +
         '<div class="kv"><span>Chủ sân</span><b>' + esc(v.owner) + "</b></div>" +
         '<div class="kv"><span>Điện thoại</span><b>' + esc(v.phone) + "</b></div>" +
-        '<div class="kv"><span>Giờ mở cửa</span><b>' + hhmm(v.open) + " – " + hhmm(v.close) + "</b></div></div>";
+        '<div class="kv"><span>Giờ mở cửa</span><b>' + opens(v) + "</b></div></div>";
     } else if (state.vTab === "price") {
       h = '<div class="card" style="padding:12px 14px"><p class="sect">Bảng giá thuê sân</p>' +
-        '<div class="kv"><span>Khung giờ thường (' + hhmm(v.open) + " – 17:00)</span><b>" + vnd(v.lo) + "/giờ</b></div>" +
+        '<div class="kv"><span>Khung giờ thường (' + hshort(v.open) + " – 17:00)</span><b>" + vnd(v.lo) + "/giờ</b></div>" +
         '<div class="kv"><span>Giờ cao điểm (17:00 – 22:00)</span><b>' + vnd(v.hi) + "/giờ</b></div>" +
         '<div class="kv"><span>Thuê trọn buổi (3 giờ liên tiếp)</span><b>' + vnd(v.hi * 3 * 0.9) + "</b></div>" +
         '<div class="kv"><span>Cọc giữ chỗ</span><b>Không bắt buộc</b></div></div>' +
@@ -1095,14 +1094,6 @@
       return { ic: n.ic, title: n.title, body: n.body, time: n.time, read: n.read };
     });
 
-    $("#jump").innerHTML = [
-      ["login", "Đăng nhập"], ["register", "Đăng ký"], ["home", "Trang chủ"], ["search", "Tìm sân"],
-      ["venue", "Chi tiết sân"], ["booking", "Chọn giờ"], ["payment", "Thanh toán"], ["done", "Hoàn tất"],
-      ["status", "Trạng thái sân"], ["matches", "Ghép kèo"], ["match", "Chi tiết kèo"], ["newmatch", "Tạo kèo"],
-      ["map", "Bản đồ"], ["notif", "Thông báo"], ["profile", "Cá nhân"], ["editprofile", "Sửa hồ sơ"],
-      ["manage", "Quản lý sân"]
-    ].map(function (j) { return '<button data-go="' + j[0] + '">' + j[1] + "</button>"; }).join("");
-
     tickClock();
     setInterval(tickClock, 20000);
   }
@@ -1271,6 +1262,17 @@
       paintPayment(); paintCta("payment");
     });
 
+    $("#dStatus").addEventListener("click", function () {
+      var b = state.bookings[0], i;
+      if (b) {
+        state.st.venue = b.venue;
+        i = DAYS.findIndex(function (d) { return d.key === b.key; });
+        state.st.dateIdx = i < 0 ? 0 : i;
+        state.st.court = b.court;
+        state.st.hours = [];
+      }
+      go("status");
+    });
     $("#dHome").addEventListener("click", function () { state.stack = []; go("home", false); });
     $("#dMatch").addEventListener("click", function () {
       var b = state.bookings[0];

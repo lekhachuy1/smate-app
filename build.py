@@ -54,8 +54,8 @@ standalone = (
     '<link rel="icon" href="assets/logo.png">\n'
     + "\n".join(head_tags) + "\n"
     "<style>\n"
-    ":root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}\n"
-    "html,body{margin:0}\n"
+    ":root{color-scheme:light}\n"
+    "html,body{margin:0;max-width:100%;overflow-x:hidden}\n"
     "img{max-width:100%}\n"
     "[hidden]{display:none!important}\n"
     "</style>\n"

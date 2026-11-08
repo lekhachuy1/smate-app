@@ -19,7 +19,7 @@ và biến mất khi tải lại trang.
 | **Trạng thái sân** | Lưới lịch theo giờ × sân, tông xanh dương, ô trống / đã đặt / bảo trì / lịch của bạn; chọn ô trống để giữ chỗ rồi chuyển thẳng sang thanh toán |
 | Chọn ngày và giờ | 7 ngày tới, chọn sân con, khung giờ (giờ đã đặt bị khoá), giá theo giờ thường / cao điểm |
 | Xác nhận và thanh toán | 3 phương thức, mã giảm giá `SMATE10` và `NEWBIE`, bảng tổng tiền |
-| Hoàn tất | Mã đặt sân, mã QR sinh theo mã, cộng điểm thưởng |
+| Hoàn tất | Mã đặt sân, mã QR sinh theo mã, cộng điểm thưởng, nút mở thẳng **Trạng thái sân** |
 | Ghép kèo | Kèo đang mở / Kèo của tôi, lọc theo môn và theo ngày, tham gia kèo |
 | Chi tiết kèo | Thông tin kèo, chủ kèo, danh sách người tham gia, tham gia / rời kèo |
 | Tạo kèo mới | Chọn môn, sân, ngày giờ, số người, trình độ, chi phí, ghi chú |
@@ -30,6 +30,12 @@ và biến mất khi tải lại trang.
 | **Quản lý sân** (chủ sân) | Hiện khi đăng nhập vai trò *Chủ sân*. 4 mục: Lịch đặt trong ngày · Bật tắt từng sân · Doanh thu 7 ngày có biểu đồ · Dịch vụ đi kèm |
 
 Giao diện tự đổi theo chế độ sáng/tối của máy.
+
+## Kích thước và hiển thị trên điện thoại
+
+- Trên màn hình rộng (laptop): khung máy đứng giữa trang, vùng hiển thị của ứng dụng đúng **390 × 714 px**, cố định.
+- Trên màn hình hẹp hơn 520 px (gồm cả 390 px và 360 px): khung bỏ viền máy, **tràn đúng bằng chiều rộng màn hình**, cao bằng `100svh`, không có lề hai bên và không trượt ngang.
+- Nội dung dài hơn khung thì cuộn bên trong vùng `.view`; thanh tiêu đề, thanh tab và nút hành động luôn đứng yên, khung không đổi kích thước.
 
 Đăng nhập chọn **Chủ sân** thì tab *Ghép kèo* được thay bằng tab *Quản lý*.
 
