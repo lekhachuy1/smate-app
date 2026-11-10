@@ -4,7 +4,7 @@ Bản mẫu giao diện (UI prototype) chạy được của ứng dụng **SMat
 Không có backend: mọi lượt đặt sân, ghép kèo, mã giảm giá và điểm thưởng đều được tính ngay trong trình duyệt
 và biến mất khi tải lại trang.
 
-**Xem thử:** https://lekhachuy1.github.io/smate-app/
+**Xem thử:** https://lkh1-max.github.io/smate-app/
 
 ## Có gì trong bản mẫu
 
